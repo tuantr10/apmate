@@ -1,0 +1,119 @@
+@charset "UTF-8";
+/*index
+*
+*/
+
+body{
+background-image:url('../image/apulogo.jpg'); 
+background-repeat: no repeat;
+background-position:center;
+}
+
+#body-background{ 
+
+width:100%;
+height:100%;
+margin:0;
+padding:0;
+}  
+
+.wrapper{
+width:960px;
+height:70%;
+margin:0 auto; 
+}
+
+.header{
+height:15%;
+background-color:white;
+border-bottom:3px #8A001E solid;
+opacity:0.75;
+} 
+
+.header-content{
+width:960px;
+margin: 0 auto;
+}
+
+.body{
+margin:auto;
+height:100%;
+}  
+
+.login-form{
+opacity:0.95;
+margin: 0 auto;
+height:80px;
+width:300px;
+background-color:#DDDDDD;
+border-radius:10px;
+border: solid #8A001E 4px;
+position: relative;
+top:100px; 
+padding:10px;
+}
+
+.footer{
+opacity:0.9;
+border-top:2px solid black;
+padding-top:5px;
+height:15%;
+width:100%;
+background-color:black;
+color:white;
+font-weight:bold;
+}
+
+.footer_content{
+width:960px;
+margin:0 auto;
+}
+
+.title{
+position:relative;
+margin:0;
+}
+
+#input-pass{
+width:183px;
+}
+/*ttb
+*
+*/
+
+.ttb_top{
+margin-top:5px;
+}
+
+.ttb_top_2_left,.ttb_top_2_right{
+float:left;
+width:50%;
+}
+
+.ttb_table{
+width:12.5%;
+background-color:#F5F5F5;
+color:#7B6F81;
+}
+
+/*registration 
+*
+*/
+#registration-form {
+width:400px;
+margin: 0 auto;
+background-color:#DDDDDD;
+border-radius:10px;
+border:solid #8A001E 5px;
+padding: 5px;
+}
+
+#info-name {
+position:relative;
+left:28px;
+}
+
+#info-pass {
+position:relative;
+left:31px;
+}
