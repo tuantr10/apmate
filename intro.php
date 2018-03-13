@@ -12,12 +12,8 @@ background-position:center;
 background-repeat:repeat-y;
 background-color:000;margin: 0;
 }}
-.style1 {
-	font-family: "Times New Roman", Times, serif;
-}
-.style2 {
-	color: #FFFF00;
-}
+.style1 { font-family: "Times New Roman", Times, serif; }
+.style2 { color: #FFFF00; }
 </style>
 <html>
 <head>
@@ -59,6 +55,6 @@ document.loading.percent.value=bar+"%"
 if (bar<100)
 {setTimeout("count()",3);}
 else
-{window.location = "http://apmate.sakura.ne.jp/";}
+{window.location = "http://apmate.net/";}
 }</script>
 </html>

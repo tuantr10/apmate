@@ -1,49 +1,49 @@
 
 #firstrow {
-	width:995px;
-	height:55px;
-	background-image:url(mainhead.jpg);
-	margin: 0 auto;
+   width:995px;
+   height:55px;
+   background-image:url(mainhead.jpg);
+   margin: 0 auto;
 }
 
 #mainwrap {
-	width:995px;
-	margin: 0 auto;
+   width:995px;
+   margin: 0 auto;
 }
 
 #secondrow {
-	height:11%;
+   height:11%;
 }
 
 
 #thirdrowfirstcol {
-	float:left;
-	width:65%;
-	height:7%;
+   float:left;
+   width:65%;
+   height:7%;
 }
 
 #thirdrowsecondcol {
-	float:right;
-	width:35%;
-	height:7%;
+   float:right;
+   width:35%;
+   height:7%;
 }
 
 #fourthrow {
-	margin-top:3%;
-	height:60%;
+   margin-top:3%;
+   height:60%;
 }
 
 
 th.onetwo {
-	width:5%;
+   width:5%;
 }
 
 #breaktext {
-	word-wrap:break-word;
+   word-wrap:break-word;
 }
 
 th.timetable {
-	width:18%;
-	background-color: #F5F5F5;
-	color: #7B6F81;
+   width:18%;
+   background-color: #F5F5F5;
+   color: #7B6F81;
 }
