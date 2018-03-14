@@ -1,64 +1,77 @@
 <?php
 session_start();
 echo $_SESSION['ses_username']."<br />";
-//if ($_SESSION['ses_username']=="admin")
-//{
-  //echo "Welcome ".$_SESSION['ses_username']."<br />";
+if (isset($_POST['register'])) {
+  $l=$u=$p=$rp=$email=$reEmail = '';
+  $l=$_POST['level'];
 
-  if (isset($_POST['register'])) {
-    $l=$u=$p=$rp="";
-    $l=$_POST['level'];
+  if ($_POST['username'] == NULL) {
+    echo "Please enter username</br>";
+  } else {
+    $u=$_POST['username'];
+  }
 
-    if ($_POST['username']==NULL) {
-      echo "Please enter username</br>";
+  if ($_POST['password'] == NULL) {
+    echo "Please enter password</br>";
+  } else {
+    $p=$_POST['password'];
+  }
+
+  if ($_POST['re-password'] == NULL) {
+    echo "Please enter re-password</br>";
+  } else {
+    $rp=$_POST['re-password'];
+  }
+
+  if ($_POST['email'] == NULL) {
+    echo "Please enter email</br>";
+  } else {
+    $email = $_POST['email'];
+  }
+
+  if ($_POST['re-email'] == NULL) {
+    echo "Please enter re-email</br>";
+  } else {
+    $reEmail = $_POST['re-email'];
+  }
+
+  if ($u & $p & $rp & $email & $reEmail) {
+    require("connect.php");
+    $sql="select * from users where User_name='".$u."'"; 
+    $query=mysql_query($sql);
+    if(mysql_num_rows($query)!=0) {
+      echo "Username has been registered! Please enter another username!";
     } else {
-      $u=$_POST['username'];
-    }
+      if($p != $rp) {
+        echo "Password and Re-Password is not the same! Please try again!";
+      }
+      if($email != $reEmail) {
+        echo "Email and Re-Email is not the same! Please try again!";
+      }
+      if($email == $reEmail && $p == $rp) {
+        $add_user=" INSERT INTO users(user_name,user_password,user_level) 
+              VALUES('".$u."','".md5($p)."','1')";  
 
-    if ($_POST['password']==NULL) {
-      echo "Please enter password</br>";
-    } else {
-      $p=$_POST['password'];
-    }
-
-    if ($_POST['re-password'] == NULL) {
-      echo "Please enter re-password</br>";
-    } else {
-      $rp=$_POST['re-password'];
-    }
-
-    if ($u & $p & $rp) {
-      require("connect.php");
-      $sql="select * from users where User_name='".$u."'"; 
-      $query=mysql_query($sql);
-      if(mysql_num_rows($query)!=0) {
-        echo "Username has been registered! Please enter another username!";
-      } else {
-        if($p!=$rp) {
-          echo "Password and Re-Password is not the same! Please try again!";
-        } else {
-          $add_user=" INSERT INTO users(user_name,user_password,user_level) 
-                VALUES('".$u."','".md5($p)."','1')";  
-        /*Add workshop here*/
-          mysql_query($add_user);
-          $new_id="";
-          $sql_get_new_id="SELECT user_id 
-                   FROM users
-                   WHERE user_name='".$u."'";
-          $query_get_new_id=mysql_query($sql_get_new_id);
-          while($row_get_new_id=mysql_fetch_assoc($query_get_new_id)) {
-            $new_id=$row_get_new_id['user_id'];
-          }
-          ?>
-          <script>alert('Sucessfully registered! \nRedirecting to homepage');
+        mysql_query($add_user);
+        $new_id='';
+        $sql_get_new_id="SELECT user_id 
+                  FROM users
+                  WHERE user_name='".$u."'";
+        $query_get_new_id=mysql_query($sql_get_new_id);
+        while($row_get_new_id=mysql_fetch_assoc($query_get_new_id)) {
+          $new_id=$row_get_new_id['user_id'];
+        }
+        ?>
+        <script>alert('Sucessfully registered! \nRedirecting to homepage');
           window.location.assign("../");
-          </script>
-          <?
-        header("location:index.php");
+        </script>
+        <?php
+        header("location:index.php");  
         }
       }
     }
   }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,6 +162,14 @@ echo $_SESSION['ses_username']."<br />";
                     <label class="sr-only" for="form-password">Retype Password</label>
                     <input type="password" name="re-password" placeholder="Retype password..." class="form-password form-control" id="password">
                   </div>
+                  <div class="form-group">
+                    <label class="sr-only" for="form-password">Password</label>
+                    <input type="email" name="password" placeholder="Email..." class="form-password form-control" id="email">
+                  </div>
+                  <div class="form-group">
+                    <label class="sr-only" for="form-password">Retype Password</label>
+                    <input type="email" name="re-password" placeholder="Re-Email..." class="form-password form-control" id="re-email">
+                  </div>
                   <button type="submit" name="register" class="btn">Register</button>
                 </form>
               </div>
@@ -156,9 +177,7 @@ echo $_SESSION['ses_username']."<br />";
           </div>
         </div>
       </div>
-      
     </div>
-
 
     <!-- Javascript -->
     <script src="assets/js/jquery-1.11.1.min.js"></script>
@@ -166,20 +185,8 @@ echo $_SESSION['ses_username']."<br />";
     <script src="assets/js/jquery.backstretch.min.js"></script>
     <script src="bower_components/js-cookie/src/js.cookie.js"></script>
     <script src="assets/js/scripts.js"></script>
-    
     <!--[if lt IE 10]>
       <script src="assets/js/placeholder.js"></script>
     <![endif]-->
-
   </body>
-
-</html>  
-<?
-//} 
-//else
-//{
-//  echo "Hacking?";
-//}
-
-
-?>
+</html>
