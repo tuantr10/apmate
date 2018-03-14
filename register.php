@@ -2,8 +2,8 @@
 session_start();
 echo $_SESSION['ses_username']."<br />";
 if (isset($_POST['register'])) {
-  $l=$u=$p=$rp=$email=$reEmail = '';
-  $l=$_POST['level'];
+  $l = $u = $p = $rp = $email=$reEmail = '';
+  $l = $_POST['level'];
 
   if ($_POST['username'] == NULL) {
     echo "Please enter username</br>";
@@ -12,25 +12,25 @@ if (isset($_POST['register'])) {
   }
 
   if ($_POST['password'] == NULL) {
-    echo "Please enter password</br>";
+    echo "Please enter password<br>";
   } else {
     $p=$_POST['password'];
   }
 
   if ($_POST['re-password'] == NULL) {
-    echo "Please enter re-password</br>";
+    echo "Please enter re-password<br>";
   } else {
     $rp=$_POST['re-password'];
   }
 
   if ($_POST['email'] == NULL) {
-    echo "Please enter email</br>";
+    echo "Please enter email<br>";
   } else {
     $email = $_POST['email'];
   }
 
   if ($_POST['re-email'] == NULL) {
-    echo "Please enter re-email</br>";
+    echo "Please enter re-email<br>";
   } else {
     $reEmail = $_POST['re-email'];
   }
@@ -67,7 +67,6 @@ if (isset($_POST['register'])) {
         </script>
         <?php
         header("location:index.php");  
-        }
       }
     }
   }
