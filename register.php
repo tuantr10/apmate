@@ -162,12 +162,12 @@ if (isset($_POST['register'])) {
                     <input type="password" name="re-password" placeholder="Retype password..." class="form-password form-control" id="password">
                   </div>
                   <div class="form-group">
-                    <label class="sr-only" for="form-password">Password</label>
-                    <input type="email" name="password" placeholder="Email..." class="form-password form-control" id="email">
+                    <label class="sr-only" for="form-email">Email</label>
+                    <input type="email" name="email" placeholder="Email..." class="form-email form-control" id="email">
                   </div>
                   <div class="form-group">
-                    <label class="sr-only" for="form-password">Retype Password</label>
-                    <input type="email" name="re-password" placeholder="Re-Email..." class="form-password form-control" id="re-email">
+                    <label class="sr-only" for="form-email">Retype Email</label>
+                    <input type="email" name="re-email" placeholder="Re-Email..." class="form-email form-control" id="re-email">
                   </div>
                   <button type="submit" name="register" class="btn">Register</button>
                 </form>
