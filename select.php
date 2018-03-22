@@ -15,12 +15,12 @@
  */
 
 session_start();
+
+require("connect.php");
 require("method.php");
 $method = new method;
-/** Declare variables
- *  
- */
-$announce=''; 
+
+$announce='';
 $dayfull=array('Mon'=>'Monday','Tue'=>'Tuesday','Wed'=>'Wednesday','Thu'=>'Thursday','Fri'=>'Friday','Sat'=>'Saturday');
 $day=array(2=>'Mon','Tue','Wed','Thu','Fri','Sat');
 $quarter=array(1=>'SP1','SP2','SP');
@@ -62,7 +62,6 @@ $dictionary = array(
       "syllabus"=>"シラバス"
     )
 );
-require("connect.php");
 
 function destroy_session() {
   $_SESSION['ses_day']='';
@@ -76,36 +75,30 @@ function insert_subject($f_option) {
 /**
  * If that subject hasn't been chosen then insert that subject into records
  */
-    $sql_check_existing="  SELECT user_id,subject_id,subject_code 
-                FROM records
-                WHERE user_id='".$_SESSION['ses_userid']."'
-                AND subject_code='".$f_option."'";
-    $query_check_existing=mysql_query($sql_check_existing);
-    if(mysql_num_rows($query_check_existing)==0) {
-/*
-* Insert that subject into records
-*/
-      $sql_insert_subject="INSERT INTO records(user_id,subject_id,subject_code,subject_quarter,subject_period,subject_day,record_credit) 
-                  SELECT user_id,subject_id,subject_code,subject_quarter,subject_period,subject_day,subject_credit 
-                  FROM users,subjects 
-                  WHERE user_id='".$_SESSION['ses_userid']."'
-                  AND subject_code='".$f_option."'";
-      mysql_query($sql_insert_subject); 
-/*
-* Get that subject credits
-*/
-      $sql_getting_subject_credit="  SELECT DISTINCT subject_credit 
-                      FROM subjects
-                      WHERE subject_code='".$f_option."'";
-      $query_getting_subject_credit=mysql_query($sql_getting_subject_credit);
-      while($row_getting_subject_credit=mysql_fetch_assoc($query_getting_subject_credit)) {
-/*
-* Increase the user's credit by adding that subject's credit number.
-*/
-        $sql_plus_user_credit="  UPDATE users
-                    SET user_credit=user_credit+".$row_getting_subject_credit['subject_credit']."
-                    WHERE user_id='".$_SESSION['ses_userid']."'";
-        mysql_query($sql_plus_user_credit);
+    $sql_check_existing = " SELECT user_id,subject_id,subject_code
+                            FROM records
+                            WHERE user_id='".$_SESSION['ses_userid']."'
+                            AND subject_code='".$f_option."'";
+    $query_check_existing = mysqli_query($conn, $sql_check_existing);
+    // Insert that subject into records
+    if(mysqli_num_rows($query_check_existing) == 0) {
+      $sql_insert_subject = " INSERT INTO records(user_id,subject_id,subject_code,subject_quarter,subject_period,subject_day,record_credit) 
+                              SELECT user_id,subject_id,subject_code,subject_quarter,subject_period,subject_day,subject_credit 
+                              FROM users,subjects 
+                              WHERE user_id='".$_SESSION['ses_userid']."'
+                              AND subject_code='".$f_option."'";
+      mysqli_query($conn, $sql_insert_subject);
+      // Get that subject credits
+      $sql_getting_subject_credit = " SELECT DISTINCT subject_credit 
+                                      FROM subjects
+                                      WHERE subject_code='".$f_option."'";
+      $query_getting_subject_credit = mysqli_query($conn, $sql_getting_subject_credit);
+      while($row_getting_subject_credit = mysqli_fetch_assoc($query_getting_subject_credit)) {
+        // Increase the user's credit by adding that subject's credit number.
+        $sql_plus_user_credit = " UPDATE users
+                                  SET user_credit=user_credit+".$row_getting_subject_credit['subject_credit']."
+                                  WHERE user_id='".$_SESSION['ses_userid']."'";
+        mysqli_query($conn, $sql_plus_user_credit);
       }
     }
 }
@@ -123,65 +116,57 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
 * Decrease user's credit number which equivalent to that subject's credit
 */
 
-  $sql_getting_subject_credit="  SELECT DISTINCT record_credit 
-                  FROM records
-                  WHERE subject_quarter IN('".$deleting_quarter."','SP')
-                  AND subject_period='".$deleting_period."'
-                  AND subject_day='".$deleting_day."'
-                  AND record_deleted='0'
-                  AND user_id='".$_SESSION['ses_userid']."'";
-  $query_getting_subject_credit=mysql_query($sql_getting_subject_credit);
-  while($row_getting_subject_credit=mysql_fetch_assoc($query_getting_subject_credit)) {
-    $sql_minus_user_credit="  UPDATE users
-                  SET user_credit=user_credit-".$row_getting_subject_credit['record_credit']."
-                  WHERE user_id='".$_SESSION['ses_userid']."'";
-    mysql_query($sql_minus_user_credit);
+  $sql_getting_subject_credit=" SELECT DISTINCT record_credit
+                                FROM records
+                                WHERE subject_quarter IN('".$deleting_quarter."','SP')
+                                AND subject_period='".$deleting_period."'
+                                AND subject_day='".$deleting_day."'
+                                AND record_deleted='0'
+                                AND user_id='".$_SESSION['ses_userid']."'";
+  $query_getting_subject_credit = mysqli_query($conn, $sql_getting_subject_credit);
+  while($row_getting_subject_credit = mysqli_fetch_assoc($query_getting_subject_credit)) {
+    $sql_minus_user_credit = "UPDATE users
+                              SET user_credit=user_credit-".$row_getting_subject_credit['record_credit']."
+                              WHERE user_id='".$_SESSION['ses_userid']."'";
+    mysqli_query($conn, $sql_minus_user_credit);
   }
-/**
-* Check if the subject has already applied by the user or not, if yes then increase subject vacancy, if no then do nothing
-*/
-  $sql_check_applied="  SELECT DISTINCT record_id,record_applied
-              FROM records
-              WHERE user_id='".$_SESSION['ses_userid']."'
-              AND subject_quarter IN('".$deleting_quarter."','SP')
-              AND subject_period='".$deleting_period."'
-              AND subject_day='".$deleting_day."'";
-  $query_check_applied=mysql_query($sql_check_applied);
+
+  // Check if the subject has already applied by the user or not, if yes then increase subject vacancy, if no then do nothing
+  $sql_check_applied = "SELECT DISTINCT record_id,record_applied
+                        FROM records
+                        WHERE user_id='".$_SESSION['ses_userid']."'
+                        AND subject_quarter IN('".$deleting_quarter."','SP')
+                        AND subject_period='".$deleting_period."'
+                        AND subject_day='".$deleting_day."'";
+  $query_check_applied = mysqli_query($conn, $sql_check_applied);
   $check_applied;
-  while($row_check_applied=mysql_fetch_assoc($query_check_applied))
-  {
+  while($row_check_applied=mysqli_fetch_assoc($query_check_applied)) {
     $check_applied=$row_check_applied['record_applied'];
   }
-  if ($check_applied==1)
-  {
-  $sql_set_deleted="  UPDATE records
-            SET record_deleted='1'
-            WHERE user_id='".$_SESSION['ses_userid']."'
-            AND subject_code IN
-            (  
-              SELECT DISTINCT subject_code 
-              FROM subjects
-              WHERE subject_quarter IN('".$deleting_quarter."','SP')
-              AND subject_period='".$deleting_period."'
-              AND subject_day='".$deleting_day."'
-            )";
-  mysql_query($sql_set_deleted);
-  }
-  else
-  {
-/* Delete that subject from records
- */  
-
-  $sql_delete_subject="  DELETE FROM records 
-              WHERE user_id='".$_SESSION['ses_userid']."'
-              AND subject_code IN
-              (
-                SELECT DISTINCT subject_code FROM subjects 
-                WHERE (subject_quarter='".$deleting_quarter."' or subject_quarter='SP')
-                AND subject_period='".$deleting_period."'
-                AND subject_day='".$deleting_day."'
-              )";
-  mysql_query($sql_delete_subject);
+  if ($check_applied == 1) {
+  $sql_set_deleted = "UPDATE records
+                      SET record_deleted='1'
+                      WHERE user_id='".$_SESSION['ses_userid']."'
+                      AND subject_code IN
+                      (
+                        SELECT DISTINCT subject_code 
+                        FROM subjects
+                        WHERE subject_quarter IN('".$deleting_quarter."','SP')
+                        AND subject_period='".$deleting_period."'
+                        AND subject_day='".$deleting_day."'
+                      )";
+  mysqli_query($conn, $sql_set_deleted);
+  } else { // Delete that subject from records
+    $sql_delete_subject=" DELETE FROM records
+                          WHERE user_id='".$_SESSION['ses_userid']."'
+                          AND subject_code IN
+                          (
+                            SELECT DISTINCT subject_code FROM subjects
+                            WHERE (subject_quarter='".$deleting_quarter."' or subject_quarter='SP')
+                            AND subject_period='".$deleting_period."'
+                            AND subject_day='".$deleting_day."'
+                          )";
+    mysqli_query($conn, $sql_delete_subject);
   }
 }
 /**
@@ -191,39 +176,37 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
 /** Handling logout button
 * 
 */
-if(isset($_POST['logout']))
-{
-  $temp_credit=0;
-  
-    $sql_reset_delete="  UPDATE records
-              SET record_deleted='0' 
-              WHERE user_id='".$_SESSION['ses_userid']."'
-              AND record_deleted='1'";
-              
-    mysql_query($sql_reset_delete);
-    $sql_delete_unapplied="  DELETE FROM records
-                WHERE record_applied='0'
-                AND user_id='".$_SESSION['ses_userid']."'";
-    $query_delete_unapplied=mysql_query($sql_delete_unapplied);
-    $sql_get_total_credit=" SELECT DISTINCT record_credit,subject_code
-                FROM records
-                WHERE user_id='".$_SESSION['ses_userid']."'
-                AND record_applied='1'
-                AND record_deleted='0'";
-    $query_get_total_credit=mysql_query($sql_get_total_credit);
-    while($row_get_total_credit=mysql_fetch_assoc($query_get_total_credit))
-    {
-      $temp_credit+=$row_get_total_credit['record_credit'];
-    }
-    $set_user_credit="  UPDATE users
-              SET user_credit='".$temp_credit."'
-              WHERE user_id='".$_SESSION['ses_userid']."'";
-    mysql_query($set_user_credit);
+if(isset($_POST['logout'])) {
+  $temp_credit = 0;
+
+  $sql_reset_delete=" UPDATE records
+                      SET record_deleted='0' 
+                      WHERE user_id='".$_SESSION['ses_userid']."'
+                      AND record_deleted='1'";
+  mysqli_query($conn, $sql_reset_delete);
+
+  $sql_delete_unapplied = " DELETE FROM records
+                            WHERE record_applied='0'
+                            AND user_id='".$_SESSION['ses_userid']."'";
+  $query_delete_unapplied = mysqli_query($conn, $sql_delete_unapplied);
+  $sql_get_total_credit=" SELECT DISTINCT record_credit,subject_code
+                          FROM records
+                          WHERE user_id='".$_SESSION['ses_userid']."'
+                          AND record_applied='1'
+                          AND record_deleted='0'";
+  $query_get_total_credit = mysqli_query($conn, $sql_get_total_credit);
+  while($row_get_total_credit = mysqli_fetch_assoc($query_get_total_credit)) {
+    $temp_credit+=$row_get_total_credit['record_credit'];
+  }
+  $set_user_credit = "UPDATE users
+                      SET user_credit='".$temp_credit."'
+                      WHERE user_id='".$_SESSION['ses_userid']."'";
+  mysqli_query($conn, $set_user_credit);
   header("location:index.php");
 }
-/** End handing logout button
+/*
+ * End handing logout button
  */
-
 
 /** Handling submit button
 * 
@@ -242,143 +225,135 @@ if(isset($_POST['logout']))
 *  value  3    SP
 */
 if (isset($_POST['submit'])) {
-  $option='';
-  $option=$_POST['numbers'];
-  $array_check_stuck=array();
-  $check_stuck=0;
-  $subject_name='';
+  $option = '';
+  $option = $_POST['numbers'];
+  $array_check_stuck = array();
+  $check_stuck = 0;
+  $subject_name = '';
   /*Get subject real duration*/
 
-  if($option!=-1) {
-    $sql_get_subject_duration_name="SELECT subject_quarter,subject_name
-                    FROM subjects
-                    WHERE subject_code='".$option."'";
-    $query_get_subject_duration_name=mysql_query($sql_get_subject_duration_name);
-    while($row_get_subject_duration_name=mysql_fetch_assoc($query_get_subject_duration_name)) {
+  if($option != -1) {
+    $sql_get_subject_duration_name = "SELECT subject_quarter,subject_name
+                                      FROM subjects
+                                      WHERE subject_code='".$option."'";
+    $query_get_subject_duration_name = mysqli_query($conn, $sql_get_subject_duration_name);
+    while($row_get_subject_duration_name=mysqli_fetch_assoc($query_get_subject_duration_name)) {
       $subject_quarter=$row_get_subject_duration_name['subject_quarter'];
       $subject_name=$row_get_subject_duration_name['subject_name'];
     }
-/**
-* Check if the user changed from another subject or not
-*/
-    $sql_check_changing="  SELECT DISTINCT record_id
-                FROM records
-                WHERE user_id='".$_SESSION['ses_userid']."'
-                AND subject_period='".$subject_period."'
-                AND subject_day='".$subject_day."'
-                AND record_deleted='0'"; 
-    if ($subject_quarter!='SP') {
-      $sql_check_changing.="  AND subject_quarter IN ('".$subject_quarter."','SP')";
-    }
-    $query_check_changing=mysql_query($sql_check_changing);
-/**
- * Adding new subject
- */
-            if(mysql_num_rows($query_check_changing)==0) {
-/**
- * Check if that subject is making any duplicate record (stuck with other subjects) or not. 
- * If not then insert record, else do nothing.
- */              $duplicate_records=0;
-                $sql_get_period_day="  SELECT DISTINCT subject_period,subject_day,subject_id
-                            FROM subjects
-                            WHERE subject_code='".$option."'";
-                $query_get_period_day=mysql_query($sql_get_period_day);
-                while($row_get_period_day=mysql_fetch_assoc($query_get_period_day)) {
-                  $sql_check_stuck="  SELECT DISTINCT record_id
-                            FROM records
-                            WHERE user_id='".$_SESSION['ses_userid']."' 
-                            AND subject_day='".$row_get_period_day['subject_day']."'
-                            AND subject_period='".$row_get_period_day['subject_period']."'
-                            AND record_deleted='0'";
-                  if ($subject_quarter!='SP') {
-                    $sql_check_stuck.="AND subject_quarter IN('".$subject_quarter."','SP')";
-                  }
-                  $query_check_stuck=mysql_query($sql_check_stuck);
-                  $duplicate_records+=mysql_num_rows($query_check_stuck);
-                }
-                /**debugging*/
-              /**debugging*/
-              if($duplicate_records > 0) {
-                $announce="<font color='red'>class[".$option." ".$subject_name."] is duplicated timetable.<br />Please choose another subject :)</font><br/>";
-              } else { /* else insert that subject */
-                insert_subject($option);
-                destroy_session();
-                header("location:timetableadvance.php");
-              }
-            } else {
-/**
-* Changing subject
-*/
-                $sql_get_period_day="  SELECT DISTINCT subject_period,subject_day,subject_id
-                            FROM subjects
-                            WHERE subject_code='".$option."'";
-                $query_get_period_day=mysql_query($sql_get_period_day);
-                while($row_get_period_day=mysql_fetch_assoc($query_get_period_day))
-                {
-                  $sql_check_stuck="  SELECT DISTINCT record_id,subject_code
+
+    // Check if the user changed from another subject or not
+    $sql_check_changing = " SELECT DISTINCT record_id
                             FROM records
                             WHERE user_id='".$_SESSION['ses_userid']."'
-                            AND subject_day='".$row_get_period_day['subject_day']."'
-                            AND subject_period='".$row_get_period_day['subject_period']."'
-                            AND record_deleted='0'";
-                  if($subject_quarter!="SP") {
-                    $sql_check_stuck.="AND subject_quarter IN('".$subject_quarter."','SP')";
-                  }
-                  $query_check_stuck=mysql_query($sql_check_stuck);
-                  while($row_check_stuck=mysql_fetch_assoc($query_check_stuck)) {
-                    $array_check_stuck[]=$row_check_stuck['subject_code'];
-                  }
-                }
-                $check_stuck=0;
-                $array_check_stuck=array_unique($array_check_stuck);
-                foreach($array_check_stuck as $key=>$value) {
-                  foreach($array_check_stuck as $_key=>$_value) {
-                    if($value!=$_value) {
-                      ++$check_stuck;
-                    }
-                  }
-                }
-                
-                if($check_stuck==0) {
-                  /*make sure that the user doesnt tick the same subject*/
-                    $sql_check_same_subject="  SELECT record_id
-                                  FROM records
-                                  WHERE subject_code='".$option."'
-                                  AND user_id='".$_SESSION['ses_userid']."'";
-                    $query_check_same_subject=mysql_query($sql_check_same_subject);
-                    if (mysql_num_rows($query_check_same_subject)>0) {
-                      /* same subject*/
-                      destroy_session();
-                      header("location:timetableadvance.php");
-                    } else { /*not same subject*/
-                          delete_subject($subject_quarter,$subject_day,$subject_period);
-                          if($subject_quarter=="SP")
-                          {
-                            delete_subject("SP1",$subject_day,$subject_period);
-                            delete_subject("SP2",$subject_day,$subject_period);
-                          }
-                          insert_subject($option);
-                          destroy_session();
-                          header("location:timetableadvance.php");
-                    }
-                } else { /*if stuck output error*/
-                  $announce="<font color='red'>class[".$option." ".$subject_name."] is duplicated timetable.<br />Please choose another subject :)</font><br/>";
-                }
+                            AND subject_period='".$subject_period."'
+                            AND subject_day='".$subject_day."'
+                            AND record_deleted='0'"; 
+    if ($subject_quarter != 'SP') {
+      $sql_check_changing .= " AND subject_quarter IN ('".$subject_quarter."','SP')";
+    }
+    $query_check_changing = mysqli_query($conn, $sql_check_changing);
+
+    // Adding new subject
+    if(mysqli_num_rows($query_check_changing) == 0) {
+      // Check if that subject is making any duplicate record (stuck with other subjects) or not. 
+      // If not then insert record, else do nothing.
+      $duplicate_records = 0;
+      $sql_get_period_day = " SELECT DISTINCT subject_period,subject_day,subject_id
+                              FROM subjects
+                              WHERE subject_code='".$option."'";
+      $query_get_period_day = mysqli_query($conn, $sql_get_period_day);
+      while($row_get_period_day = mysqli_fetch_assoc($query_get_period_day)) {
+        $sql_check_stuck="  SELECT DISTINCT record_id
+                  FROM records
+                  WHERE user_id='".$_SESSION['ses_userid']."'
+                  AND subject_day='".$row_get_period_day['subject_day']."'
+                  AND subject_period='".$row_get_period_day['subject_period']."'
+                  AND record_deleted='0'";
+        if ($subject_quarter!='SP') {
+          $sql_check_stuck .= "AND subject_quarter IN('".$subject_quarter."','SP')";
+        }
+        $query_check_stuck = mysqli_query($conn, $sql_check_stuck);
+        $duplicate_records += mysqli_num_rows($query_check_stuck);
+      }
+      /**debugging*/
+      if($duplicate_records > 0) {
+        $announce = "<font color='red'>class[".$option." ".$subject_name."] is duplicated timetable.<br />Please choose another subject :)</font><br/>";
+      } else { /* else insert that subject */
+        insert_subject($option);
+        destroy_session();
+        header("location:timetableadvance.php");
+      }
+    } else {
+      // Changing subject
+        $sql_get_period_day = " SELECT DISTINCT subject_period,subject_day,subject_id
+                                FROM subjects
+                                WHERE subject_code='".$option."'";
+        $query_get_period_day = mysqli_query($conn, $sql_get_period_day);
+        while($row_get_period_day=mysqli_fetch_assoc($query_get_period_day)) {
+          $sql_check_stuck = "SELECT DISTINCT record_id,subject_code
+                              FROM records
+                              WHERE user_id='".$_SESSION['ses_userid']."'
+                              AND subject_day='".$row_get_period_day['subject_day']."'
+                              AND subject_period='".$row_get_period_day['subject_period']."'
+                              AND record_deleted='0'";
+          if($subject_quarter!="SP") {
+            $sql_check_stuck.="AND subject_quarter IN('".$subject_quarter."','SP')";
+          }
+          $query_check_stuck=mysqli_query($conn, $sql_check_stuck);
+          while($row_check_stuck=mysqli_fetch_assoc($query_check_stuck)) {
+            $array_check_stuck[]=$row_check_stuck['subject_code'];
+          }
+        }
+        $check_stuck = 0;
+        $array_check_stuck = array_unique($array_check_stuck);
+        foreach($array_check_stuck as $key=>$value) {
+          foreach($array_check_stuck as $_key=>$_value) {
+            if($value!=$_value) {
+              ++$check_stuck;
             }
+          }
+        }
+
+        if($check_stuck == 0) {
+          // make sure that the user doesnt tick the same subject
+          $sql_check_same_subject="  SELECT record_id
+                        FROM records
+                        WHERE subject_code='".$option."'
+                        AND user_id='".$_SESSION['ses_userid']."'";
+          $query_check_same_subject = mysqli_query($conn, $sql_check_same_subject);
+          if (mysqli_num_rows($query_check_same_subject) > 0) {
+            /* same subject*/
+            destroy_session();
+            header("location:timetableadvance.php");
+          } else { /*not same subject*/
+            delete_subject($subject_quarter, $subject_day, $subject_period);
+            if($subject_quarter=="SP") {
+              delete_subject("SP1", $subject_day, $subject_period);
+              delete_subject("SP2", $subject_day, $subject_period);
+            }
+            insert_subject($option);
+            destroy_session();
+            header("location:timetableadvance.php");
+          }
+        } else { /*if stuck output error*/
+          $announce="<font color='red'>class[".$option." ".$subject_name."] is duplicated timetable.<br />Please choose another subject :)</font><br/>";
+        }
+    }
   } else {
 /**
 * Subject cancel
 */
-    $sql_check_empty="  SELECT DISTINCT record_id
-              FROM records
-              WHERE user_id='".$_SESSION['ses_userid']."'
-              AND subject_quarter IN('".$subject_quarter."','SP')
-              AND subject_day='".$subject_day."'
-              AND subject_period='".$subject_period."'
-              AND record_deleted='0'";
-    $query_check_empty=mysql_query($sql_check_empty);
-    if (mysql_num_rows($query_check_empty)>0) {
-      delete_subject($subject_quarter,$subject_day,$subject_period);
+    $sql_check_empty = "SELECT DISTINCT record_id
+                        FROM records
+                        WHERE user_id='".$_SESSION['ses_userid']."'
+                        AND subject_quarter IN('".$subject_quarter."','SP')
+                        AND subject_day='".$subject_day."'
+                        AND subject_period='".$subject_period."'
+                        AND record_deleted='0'";
+    $query_check_empty = mysqli_query($conn, $sql_check_empty);
+    if (mysqli_num_rows($query_check_empty)>0) {
+      delete_subject($subject_quarter, $subject_day, $subject_period);
       destroy_session();
       header("location:timetableadvance.php");
     } else {
@@ -386,40 +361,36 @@ if (isset($_POST['submit'])) {
       header("location:timetableadvance.php");
     }
   }
-
 }
 /** End handling submit button
 * 
 */
 
 
-/** Handling back button
-* 
-*/
+// Handling back button
 if (isset($_POST['back'])) {
   header("location:timetableadvance.php");
 }
-/** End handling back button
-* 
-*/
+// End handling back button
+
 // CREATING RADIO GROUP FUNCTION
-function createRadio($r_name,$r_options,$r_value,$r_checked,$r_vacancy,$r_lang) {
+function createRadio($r_name, $r_options, $r_value, $r_checked, $r_vacancy, $r_lang) {
   $r_name = htmlentities($r_name);
-  $html ="";
-  $odd_even=0;
+  $html = "";
+  $odd_even = 0;
   foreach($r_options as $label=>$value) {
      /* Styling background color, even row has white background while odd row has black background*/
     $label = htmlentities($label);
-    if(($r_vacancy[$label]==0) or $r_lang[$label]=="J") {/*Disable this option*/
-      if ($odd_even==0) {
-        $html .= "<tr><td><input type='radio' ";//put disabled to gray-ed the options
-        $odd_even=1;
+    if(($r_vacancy[$label]==0) or $r_lang[$label] == "J") {//Disable this option
+      if ($odd_even ==0) {
+        $html .= "<tr><td><input type='radio' "; //put disabled to gray-ed the options
+        $odd_even = 1;
       } else {
-        $html .= "<tr bgcolor='F5F5F5'><td><input type='radio' ";//put disabled to gray-ed the options
-        $odd_even=0;
+        $html .= "<tr bgcolor='F5F5F5'><td><input type='radio' "; //put disabled to gray-ed the options
+        $odd_even = 0;
       }
     } else {
-      if ($odd_even==0) {
+      if ($odd_even == 0) {
         $html .= "<tr><td><input type='radio' ";
         $odd_even=1;
       } else {
@@ -480,14 +451,14 @@ $sql_generate_checked= "SELECT DISTINCT record_id,subject_code
             AND subject_period='".$subject_period."'
             AND user_id='".$_SESSION['ses_userid']."'
             AND record_deleted='0'";
-$query_generate_checked=mysql_query($sql_generate_checked); 
+$query_generate_checked = mysqli_query($conn, $sql_generate_checked);
 
-if(mysql_num_rows($query_generate_checked)==0) {
+if(mysqli_num_rows($query_generate_checked)==0) {
   echo "<input type='radio' name='numbers' value='-1' checked='checked' /></td>
       <td colspan='13' align='center'><font color='15164F'><b> Choose this option to cancel class </b></font></td>"."\n";
 } else {
   echo "<input type='radio' name='numbers' value='-1' /></td>  <td colspan='13' align='center'> Choose this option to cancel class </td>"."\n";
-  $row_generate_checked=mysql_fetch_assoc($query_generate_checked);
+  $row_generate_checked=mysqli_fetch_assoc($query_generate_checked);
   $chosen_code=$row_generate_checked['subject_code'];
 }
 /*End cancel option*/
@@ -495,7 +466,7 @@ echo "</tr>";
 $testing=array(); //SUBJECT CODE
 $array_subject_vacancy=array();
 $array_subject_lang=array();
-$array=array();
+$array = array();
 $text='';
 //change subject name here
 if($_COOKIE['language']=='en') {
@@ -512,8 +483,8 @@ $sql="SELECT subject_quarter,subject_day,subject_period,subject_grade,subject_ar
     AND subject_day='".$subject_day."' 
     AND subject_period='".$subject_period."'";
 
-$query=mysql_query($sql);
-while($row=mysql_fetch_assoc($query)) {
+$query = mysqli_query($conn, $sql);
+while($row = mysqli_fetch_assoc($query)) {
   foreach($row as $label=>$value) {
     $text.="<td>".$value."</td>";
   }
