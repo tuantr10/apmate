@@ -95,7 +95,7 @@ if(isset($_POST['ok'])) {
               <div class="description">
                 <p>
                   <strong>This is a simulation site where students can arrange their schedule before the legend 'clicking' war. <br />
-                  The schedule in this site is based on the excel file that can be downloaded here <a href="http://en.apu.ac.jp/academic/uploads/fckeditor/public/registration/17SPTimetable_0317u.xlsx">http://en.apu.ac.jp..</a>.</strong>
+                  The schedule in this site is based on the excel file that can be downloaded here <a href="http://en.apu.ac.jp/academic/uploads/fckeditor/public/registration/18SPTimetable_0314u.xlsx">http://en.apu.ac.jp..</a>.</strong>
                 </p>
               </div>
             </div>
