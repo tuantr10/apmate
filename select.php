@@ -20,14 +20,14 @@ require("connect.php");
 require("method.php");
 $method = new method;
 
-$announce='';
-$dayfull=array('Mon'=>'Monday','Tue'=>'Tuesday','Wed'=>'Wednesday','Thu'=>'Thursday','Fri'=>'Friday','Sat'=>'Saturday');
-$day=array(2=>'Mon','Tue','Wed','Thu','Fri','Sat');
-$quarter=array(1=>'SP1','SP2','SP');
-$subject_day=$day[$_SESSION['ses_day']];
-$subject_quarter=$quarter[$_SESSION['ses_quarter']];
-$subject_period=$_SESSION['ses_period'];
-$stable_subject_quarter=$quarter[$_SESSION['ses_quarter']];
+$announce = '';
+$dayfull = array('Mon'=>'Monday','Tue'=>'Tuesday','Wed'=>'Wednesday','Thu'=>'Thursday','Fri'=>'Friday','Sat'=>'Saturday');
+$day = array(2 => 'Mon','Tue','Wed','Thu','Fri','Sat');
+$quarter = array(1 => '1Q','2Q','Quarter');
+$subject_day = $day[$_SESSION['ses_day']];
+$subject_quarter = $quarter[$_SESSION['ses_quarter']];
+$subject_period = $_SESSION['ses_period'];
+$stable_subject_quarter = $quarter[$_SESSION['ses_quarter']];
 
 $dictionary = array(
   'en'=> array(
@@ -118,7 +118,7 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
 
   $sql_getting_subject_credit=" SELECT DISTINCT record_credit
                                 FROM records
-                                WHERE subject_quarter IN('".$deleting_quarter."','SP')
+                                WHERE subject_quarter IN('".$deleting_quarter."','Quarter')
                                 AND subject_period='".$deleting_period."'
                                 AND subject_day='".$deleting_day."'
                                 AND record_deleted='0'
@@ -135,7 +135,7 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
   $sql_check_applied = "SELECT DISTINCT record_id,record_applied
                         FROM records
                         WHERE user_id='".$_SESSION['ses_userid']."'
-                        AND subject_quarter IN('".$deleting_quarter."','SP')
+                        AND subject_quarter IN('".$deleting_quarter."','Quarter')
                         AND subject_period='".$deleting_period."'
                         AND subject_day='".$deleting_day."'";
   $query_check_applied = mysqli_query($conn, $sql_check_applied);
@@ -151,7 +151,7 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
                       (
                         SELECT DISTINCT subject_code 
                         FROM subjects
-                        WHERE subject_quarter IN('".$deleting_quarter."','SP')
+                        WHERE subject_quarter IN('".$deleting_quarter."','Quarter')
                         AND subject_period='".$deleting_period."'
                         AND subject_day='".$deleting_day."'
                       )";
@@ -162,7 +162,7 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
                           AND subject_code IN
                           (
                             SELECT DISTINCT subject_code FROM subjects
-                            WHERE (subject_quarter='".$deleting_quarter."' or subject_quarter='SP')
+                            WHERE (subject_quarter='".$deleting_quarter."' or subject_quarter='Quarter')
                             AND subject_period='".$deleting_period."'
                             AND subject_day='".$deleting_day."'
                           )";
@@ -220,9 +220,9 @@ if(isset($_POST['logout'])) {
 *  type      integer
 * @ses_quarter    chosen subject's quarter
 *  type      string
-*   value  1    SP1
-*  value  2    SP2
-*  value  3    SP
+*  value  1    1Q
+*  value  2    2Q
+*  value  3    Quarter
 */
 if (isset($_POST['submit'])) {
   $option = '';
@@ -249,8 +249,8 @@ if (isset($_POST['submit'])) {
                             AND subject_period='".$subject_period."'
                             AND subject_day='".$subject_day."'
                             AND record_deleted='0'"; 
-    if ($subject_quarter != 'SP') {
-      $sql_check_changing .= " AND subject_quarter IN ('".$subject_quarter."','SP')";
+    if ($subject_quarter != 'Quarter') {
+      $sql_check_changing .= " AND subject_quarter IN ('".$subject_quarter."','Quarter')";
     }
     $query_check_changing = mysqli_query($conn, $sql_check_changing);
 
@@ -270,8 +270,8 @@ if (isset($_POST['submit'])) {
                   AND subject_day='".$row_get_period_day['subject_day']."'
                   AND subject_period='".$row_get_period_day['subject_period']."'
                   AND record_deleted='0'";
-        if ($subject_quarter!='SP') {
-          $sql_check_stuck .= "AND subject_quarter IN('".$subject_quarter."','SP')";
+        if ($subject_quarter!='Quarter') {
+          $sql_check_stuck .= "AND subject_quarter IN('".$subject_quarter."','Quarter')";
         }
         $query_check_stuck = mysqli_query($conn, $sql_check_stuck);
         $duplicate_records += mysqli_num_rows($query_check_stuck);
@@ -297,8 +297,8 @@ if (isset($_POST['submit'])) {
                               AND subject_day='".$row_get_period_day['subject_day']."'
                               AND subject_period='".$row_get_period_day['subject_period']."'
                               AND record_deleted='0'";
-          if($subject_quarter!="SP") {
-            $sql_check_stuck.="AND subject_quarter IN('".$subject_quarter."','SP')";
+          if($subject_quarter!="Quarter") {
+            $sql_check_stuck.="AND subject_quarter IN('".$subject_quarter."','Quarter')";
           }
           $query_check_stuck=mysqli_query($conn, $sql_check_stuck);
           while($row_check_stuck=mysqli_fetch_assoc($query_check_stuck)) {
@@ -328,9 +328,9 @@ if (isset($_POST['submit'])) {
             header("location:timetableadvance.php");
           } else { /*not same subject*/
             delete_subject($subject_quarter, $subject_day, $subject_period);
-            if($subject_quarter=="SP") {
-              delete_subject("SP1", $subject_day, $subject_period);
-              delete_subject("SP2", $subject_day, $subject_period);
+            if($subject_quarter=="Quarter") {
+              delete_subject("1Q", $subject_day, $subject_period);
+              delete_subject("2Q", $subject_day, $subject_period);
             }
             insert_subject($option);
             destroy_session();
@@ -347,7 +347,7 @@ if (isset($_POST['submit'])) {
     $sql_check_empty = "SELECT DISTINCT record_id
                         FROM records
                         WHERE user_id='".$_SESSION['ses_userid']."'
-                        AND subject_quarter IN('".$subject_quarter."','SP')
+                        AND subject_quarter IN('".$subject_quarter."','Quarter')
                         AND subject_day='".$subject_day."'
                         AND subject_period='".$subject_period."'
                         AND record_deleted='0'";
@@ -420,7 +420,7 @@ echo "<br/>";
 
 //QUERY CHOOSE SUBJECT THAT MATCH THAT QUARTER, DAY AND PERIOD
 //select day/period lecturecode lecture duration course language credits instructor vacancy
-echo "<font size='6' color='2c2082'> 2017 SPRING ".$dayfull[$subject_day]." ".$subject_period."</font><br />";
+echo "<font size='6' color='2c2082'> 2018 FALL ".$dayfull[$subject_day]." ".$subject_period."</font><br />";
 echo "<form action='select.php' method='post'>";
 echo "<table align='center' width='100%' border='1' cellpadding='3' cellspacing='0' >";
 echo "<tr bgcolor='F5F5F5'>";
@@ -446,7 +446,7 @@ echo "<td>";
 $chosen_code='';
 $sql_generate_checked= "SELECT DISTINCT record_id,subject_code
             FROM records 
-            WHERE subject_quarter IN('".$stable_subject_quarter."','SP')
+            WHERE subject_quarter IN('".$stable_subject_quarter."','Quarter')
             AND subject_day='".$subject_day."' 
             AND subject_period='".$subject_period."'
             AND user_id='".$_SESSION['ses_userid']."'
@@ -479,7 +479,7 @@ if($_COOKIE['language']=='en') {
 $sql="SELECT subject_quarter,subject_day,subject_period,subject_grade,subject_area_apm,subject_area_aps,
     subject_code,$subject_name_query,$subject_instructor_query,subject_language,subject_credit,subject_vacancy 
     FROM subjects
-    WHERE subject_quarter IN('".$stable_subject_quarter."','SP')
+    WHERE subject_quarter IN('".$stable_subject_quarter."','Quarter')
     AND subject_day='".$subject_day."' 
     AND subject_period='".$subject_period."'";
 
