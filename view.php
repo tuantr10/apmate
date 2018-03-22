@@ -77,24 +77,24 @@ if(isset($_POST['logout'])) {
             WHERE user_id='".$_SESSION['ses_userid']."'
             AND record_deleted='1'";
             
-  mysql_query($sql_reset_delete);
+  mysqli_query($conn, $sql_reset_delete);
   $sql_delete_unapplied="  DELETE FROM records
               WHERE record_applied='0'
               AND user_id='".$_SESSION['ses_userid']."'";
-  $query_delete_unapplied=mysql_query($sql_delete_unapplied);
+  $query_delete_unapplied=mysqli_query($conn, $sql_delete_unapplied);
   $sql_get_total_credit=" SELECT DISTINCT record_credit,subject_code
               FROM records
               WHERE user_id='".$_SESSION['ses_userid']."'
               AND record_applied='1'
               AND record_deleted='0'";
-  $query_get_total_credit=mysql_query($sql_get_total_credit);
-  while($row_get_total_credit=mysql_fetch_assoc($query_get_total_credit)) {
+  $query_get_total_credit=mysqli_query($conn, $sql_get_total_credit);
+  while($row_get_total_credit=mysqli_fetch_assoc($query_get_total_credit)) {
     $temp_credit+=$row_get_total_credit['record_credit'];
   }
   $set_user_credit="  UPDATE users
             SET user_credit='".$temp_credit."'
             WHERE user_id='".$_SESSION['ses_userid']."'";
-  mysql_query($set_user_credit);
+  mysqli_query($conn, $set_user_credit);
   header("location:index.php");
 }
 /*if back button clicked*/
@@ -137,8 +137,8 @@ $sql_get_details="  SELECT DISTINCT records.subject_quarter, records.subject_day
           AND record_deleted = '0'
           ORDER BY subjects.subject_id";
 
-$query_get_details=mysql_query($sql_get_details);
-while($row_get_details=mysql_fetch_assoc($query_get_details)) {
+$query_get_details=mysqli_query($conn, $sql_get_details);
+while($row_get_details=mysqli_fetch_assoc($query_get_details)) {
   $text .= "<tr>";
 
   foreach($row_get_details as $key=>$value) {
@@ -210,21 +210,21 @@ echo printing($user_record);
                 WHERE user_id='".$_SESSION['ses_userid']."'
                 AND record_applied='1'
                 AND record_deleted='0'";
-  $query_get_current_credit=mysql_query($sql_get_current_credit);
-  while($row_get_current_credit=mysql_fetch_assoc($query_get_current_credit))
+  $query_get_current_credit=mysqli_query($conn, $sql_get_current_credit);
+  while($row_get_current_credit=mysqli_fetch_assoc($query_get_current_credit))
   {
     $current_credit+=$row_get_current_credit['record_credit'];
   }
   $query_return_credit="  UPDATE users,records
               SET user_credit='".$current_credit."'
               WHERE users.user_id='".$_SESSION['ses_userid']."'";
-  mysql_query($query_return_credit);
+  mysqli_query($conn, $query_return_credit);
   
   $sql_get_current_credit="  SELECT user_credit
                 FROM users
                 WHERE user_id='".$_SESSION['ses_userid']."'";
-  $query_get_current_credit=mysql_query($sql_get_current_credit);
-  while($row_get_current_credit=mysql_fetch_assoc($query_get_current_credit)) {
+  $query_get_current_credit=mysqli_query($conn, $sql_get_current_credit);
+  while($row_get_current_credit = mysqli_fetch_assoc($query_get_current_credit)) {
     $current_credit=$row_get_current_credit['user_credit'];
   }
 
