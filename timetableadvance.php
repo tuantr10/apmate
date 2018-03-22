@@ -31,8 +31,8 @@ $_SESSION['ses_day']='';
 * @quarter  Transform quarter from number to string
 * @announce  Array that store all the error or announce which will display on the web
 */
-$day = array(2=>'Mon','Tue','Wed','Thu','Fri','Sat');
-$quarter = array(1=>'SP1', 'SP2','SP');
+$day = array(2 => 'Mon','Tue','Wed','Thu','Fri','Sat');
+$quarter = array(1 => '1Q', '2Q','Quarter');
 $i = $j = $k = 0;
 $username = $_SESSION['ses_username'];
 
@@ -274,7 +274,7 @@ if ($username!= NULL) {
         echo "<form action='timetableadvance.php' method='post'>"; 
           $sql_generate_edit_button="  SELECT DISTINCT record_id 
                         FROM records 
-                        WHERE subject_quarter IN('".$quarter[$j]."','SP')
+                        WHERE subject_quarter IN('".$quarter[$j]."','Quarter')
                         AND subject_day='".$day[$k]."' 
                         AND subject_period='".$i."'
                         AND user_id='".$_SESSION['ses_userid']."'
@@ -293,7 +293,7 @@ if ($username!= NULL) {
                       FROM subjects,records
                       WHERE user_id='".$_SESSION['ses_userid']."'
                       AND records.subject_code=subjects.subject_code
-                      AND records.subject_quarter IN('".$quarter[$j]."','SP')
+                      AND records.subject_quarter IN('".$quarter[$j]."','Quarter')
                       AND records.subject_period='".$i."'
                       AND records.subject_day='".$day[$k]."'
                       AND records.subject_id=subjects.subject_id

@@ -16,7 +16,8 @@
 
 session_start();
 
-require("connect.php");
+include("settings.php");
+$conn = mysqli_connect(constant('HOST'), constant('USERNAME'), constant('PASSWORD'), constant('DBNAME'));
 require("method.php");
 $method = new method;
 
@@ -75,6 +76,8 @@ function insert_subject($f_option) {
 /**
  * If that subject hasn't been chosen then insert that subject into records
  */
+    include("settings.php");
+    $conn = mysqli_connect(constant('HOST'), constant('USERNAME'), constant('PASSWORD'), constant('DBNAME'));
     $sql_check_existing = " SELECT user_id,subject_id,subject_code
                             FROM records
                             WHERE user_id='".$_SESSION['ses_userid']."'
@@ -89,7 +92,9 @@ function insert_subject($f_option) {
                               AND subject_code='".$f_option."'";
       mysqli_query($conn, $sql_insert_subject);
       // Get that subject credits
-      $sql_getting_subject_credit = " SELECT DISTINCT subject_credit 
+      include("settings.php");
+      $conn = mysqli_connect(constant('HOST'), constant('USERNAME'), constant('PASSWORD'), constant('DBNAME'));
+      $sql_getting_subject_credit = " SELECT DISTINCT subject_credit
                                       FROM subjects
                                       WHERE subject_code='".$f_option."'";
       $query_getting_subject_credit = mysqli_query($conn, $sql_getting_subject_credit);
@@ -115,7 +120,8 @@ function delete_subject($deleting_quarter,$deleting_day,$deleting_period) {
 /**
 * Decrease user's credit number which equivalent to that subject's credit
 */
-
+  include("settings.php");
+  $conn = mysqli_connect(constant('HOST'), constant('USERNAME'), constant('PASSWORD'), constant('DBNAME'));
   $sql_getting_subject_credit=" SELECT DISTINCT record_credit
                                 FROM records
                                 WHERE subject_quarter IN('".$deleting_quarter."','Quarter')
