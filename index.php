@@ -1,5 +1,8 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 $username="";
 $_SESSION['ses_username']="";
 $_SESSION['ses_level']="";
@@ -8,11 +11,11 @@ $_SESSION['ses_announce']=0;
 $_SESSION['ses_subject_code']="0";
 //Log in button clicked
 if(isset($_POST['ok'])) {
-  $u=$p="";
-  if(($_POST['username'] == NULL)||($_POST['password'] == NULL)) {
+  $u=$p='';
+  if(($_POST['username'] == NULL) || ($_POST['password'] == NULL)) {
     ?>
     <script>alert("Please enter both username and password");</script>;
-    <?
+    <?php
   } else {
     $u=$_POST['username'];
     $p=$_POST['password'];
@@ -20,29 +23,26 @@ if(isset($_POST['ok'])) {
 
   if($u && $p) {
     require("connect.php");
-    $sql="select * from users where user_name='".$u."' and user_password='".md5($p)."'"; 
-    $query=mysql_query($sql);
-    if(mysql_num_rows($query) == 0) {
+    $sql = "SELECT * FROM users WHERE user_name='".$u."' and user_password='".md5($p)."'";
+    $query = mysqli_query($conn, $sql);
+    if(mysqli_num_rows($query) == 0) {
       ?>
       <script>alert("Wrong User ID or password, please try again. \n If you don't have an account, please create one.");</script>
-      <?
+      <?php
     } else {
-      $data=mysql_fetch_assoc($query);
-      $_SESSION['ses_username']=$data['user_name'];
-      $_SESSION['ses_level']=$data['user_level'];
-      $_SESSION['ses_userid']=$data['user_id'];
-      if ($data['user_level']=="2") {
-      //If user == admin
-      header("location:register.php");
-      } else {
-      //If user != admin
-        header("location:timetableadvance.php");
+      $data = mysqli_fetch_assoc($query);
+      $_SESSION['ses_username'] = $data['user_name'];
+      $_SESSION['ses_level'] = $data['user_level'];
+      $_SESSION['ses_userid'] = $data['user_id'];
+      if ($data['user_level'] == '2') { // if admin
+        header('location:register.php');
+      } else { // if not admin
+        header('location:timetableadvance.php');
       }
       exit();
     }
   }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,7 +103,7 @@ if(isset($_POST['ok'])) {
           <div class="row">
             <div class="col-sm-6 col-sm-offset-3 form-box">
               <div class="text">
-                <h1 class="description">Updated for SPRING 2017!</h1>
+                <h1 class="description">Updated for FALL 2018!</h1>
               </div>
             </div>
             <div class="col-sm-6 col-sm-offset-3 form-box">

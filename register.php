@@ -1,9 +1,8 @@
 <?php
 session_start();
-echo $_SESSION['ses_username']."<br />";
+
 if (isset($_POST['register'])) {
-  $l = $u = $p = $rp = $email=$reEmail = '';
-  $l = $_POST['level'];
+  $u = $p = $rp = $email=$reEmail = '';
 
   if ($_POST['username'] == NULL) {
     echo "Please enter username</br>";
@@ -37,9 +36,9 @@ if (isset($_POST['register'])) {
 
   if ($u & $p & $rp & $email & $reEmail) {
     require("connect.php");
-    $sql="select * from users where User_name='".$u."'"; 
-    $query=mysql_query($sql);
-    if(mysql_num_rows($query)!=0) {
+    $sql = "SELECT * FROM users WHERE user_name='".$u."'"; 
+    $query = mysqli_query($conn, $sql);
+    if(mysqli_num_rows($query) > 0) {
       echo "Username has been registered! Please enter another username!";
     } else {
       if($p != $rp) {
@@ -49,16 +48,16 @@ if (isset($_POST['register'])) {
         echo "Email and Re-Email is not the same! Please try again!";
       }
       if($email == $reEmail && $p == $rp) {
-        $add_user=" INSERT INTO users(user_name,user_password,user_level) 
-              VALUES('".$u."','".md5($p)."','1')";  
+        $add_user=" INSERT INTO users(user_name, user_password, user_level, user_credit, user_email)
+                    VALUES('".$u."','".md5($p)."','1', '0', '".$email."')";
 
-        mysql_query($add_user);
+        mysqli_query($conn, $add_user);
         $new_id='';
-        $sql_get_new_id="SELECT user_id 
-                  FROM users
-                  WHERE user_name='".$u."'";
-        $query_get_new_id=mysql_query($sql_get_new_id);
-        while($row_get_new_id=mysql_fetch_assoc($query_get_new_id)) {
+        $sql_get_new_id=" SELECT user_id 
+                          FROM users
+                          WHERE user_name='".$u."'";
+        $query_get_new_id = mysqli_query($conn, $sql_get_new_id);
+        while($row_get_new_id = mysqli_fetch_assoc($query_get_new_id)) {
           $new_id=$row_get_new_id['user_id'];
         }
         ?>
