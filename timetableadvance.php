@@ -1,5 +1,9 @@
 <?php
-header('Content-Type: text/html; charset=utf-8');
+session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+//header('Content-Type: text/html; charset=utf-8');
 /**
  * PHP version 5
  *
@@ -15,7 +19,6 @@ header('Content-Type: text/html; charset=utf-8');
  * @since      File available since Release 1.00
  */
 
-session_start();
 /**
 * Connecting to the database
 */
@@ -31,11 +34,10 @@ $_SESSION['ses_day']='';
 * @quarter  Transform quarter from number to string
 * @announce  Array that store all the error or announce which will display on the web
 */
-$day=array(2=>'Mon','Tue','Wed','Thu','Fri','Sat');
-$quarter=array(1=>'SP1', 'SP2','SP');
-$i=$j=$k=0;
-$username=$_SESSION['ses_username'];
-
+$day = array(2=>'Mon','Tue','Wed','Thu','Fri','Sat');
+$quarter = array(1=>'SP1', 'SP2','SP');
+$i = $j = $k = 0;
+$username = $_SESSION['ses_username'];
 
 /**
 * (1)Description:  Handling apply button
@@ -57,23 +59,23 @@ if (isset($_POST['apply'])) {
 
 /**stolen code need to move to view.php*/
     $_SESSION['ses_missed_subject']=array();
-    $mysql_check_stolen="SELECT DISTINCT subjects.subject_code,subject_name,subject_vacancy,subject_credit 
-              FROM subjects,records
-               WHERE user_id='".$_SESSION['ses_userid']."'
-               AND records.subject_code = subjects.subject_code
-               AND records.subject_quarter = subjects.subject_quarter
-               AND records.subject_day = subjects.subject_day
-               AND records.subject_period = subjects.subject_period
-               AND records.record_applied='0'
-               AND subject_vacancy='0'";
-    $query_check_stolen=mysql_query($mysql_check_stolen);
-    while($row_check_stolen=mysql_fetch_assoc($query_check_stolen)) {
+    $mysql_check_stolen = " SELECT DISTINCT subjects.subject_code,subject_name,subject_vacancy,subject_credit 
+                            FROM subjects,records
+                            WHERE user_id='".$_SESSION['ses_userid']."'
+                            AND records.subject_code = subjects.subject_code
+                            AND records.subject_quarter = subjects.subject_quarter
+                            AND records.subject_day = subjects.subject_day
+                            AND records.subject_period = subjects.subject_period
+                            AND records.record_applied='0'
+                            AND subject_vacancy='0'";
+    $query_check_stolen = mysqli_query($conn, $mysql_check_stolen);
+    while($row_check_stolen = mysqli_fetch_assoc($query_check_stolen)) {
       if($row_check_stolen['subject_vacancy'] == 0) {  
-        $sql_delete_stolen_subject="DELETE FROM records
-                      WHERE user_id='".$_SESSION['ses_userid']."'
-                      AND subject_code='".$row_check_stolen['subject_code']."'";
-        mysql_query($sql_delete_stolen_subject);
-        $_SESSION['ses_missed_subject'][]=$row_check_stolen['subject_code']." ".$row_check_stolen['subject_name'];
+        $sql_delete_stolen_subject = "DELETE FROM records
+                                      WHERE user_id='".$_SESSION['ses_userid']."'
+                                      AND subject_code='".$row_check_stolen['subject_code']."'";
+        mysqli_query($conn, $sql_delete_stolen_subject);
+        $_SESSION['ses_missed_subject'][] = $row_check_stolen['subject_code']." ".$row_check_stolen['subject_name'];
       }
     }
 /** Check stolen course
@@ -82,45 +84,45 @@ if (isset($_POST['apply'])) {
 
 /*End(1.1)*/
 
-/*BUG Pass deleted subject to view.php to warn the user that they havent successfully chose that subject since other students are faster then them*/    
+/*BUG Pass deleted subject to view.php to warn the user that they havent successfully chose that subject since other students are faster then them*/
 
 /** (1.2) Decrease all the vacancy in subjects table by 1
  * 
  * which registered by the user  
  */
     $sql_decrease_vacancy=" UPDATE subjects,records
-                SET subject_vacancy=subject_vacancy-1
-                WHERE subjects.subject_id=records.subject_id
-                AND records.user_id='".$_SESSION['ses_userid']."'
-                AND records.record_applied='0'";
-    mysql_query($sql_decrease_vacancy);
+                            SET subject_vacancy=subject_vacancy-1
+                            WHERE subjects.subject_id=records.subject_id
+                            AND records.user_id='".$_SESSION['ses_userid']."'
+                            AND records.record_applied='0'";
+    mysqli_query($conn, $sql_decrease_vacancy);
 /* End(1.2)*/
     
 /** (1.3) Set record_applied of chosen subject in records to 1 
  */
-    $sql_set_applied=" UPDATE records
-               SET record_applied='1'
-               WHERE record_applied='0'
-               AND user_id='".$_SESSION['ses_userid']."'";
-    mysql_query($sql_set_applied);
+    $sql_set_applied="UPDATE records
+                      SET record_applied='1'
+                      WHERE record_applied='0'
+                      AND user_id='".$_SESSION['ses_userid']."'";
+    mysqli_query($conn, $sql_set_applied);
 /**
  * record_deleted
  */ 
     $sql_increase_vacancy=" UPDATE subjects,records
-                SET subject_vacancy=subject_vacancy+1
-                WHERE subjects.subject_id=records.subject_id
-                AND records.user_id='".$_SESSION['ses_userid']."'
-                AND record_deleted='1'";
-    mysql_query($sql_increase_vacancy);  
-    $sql_delete_deleted_record="  DELETE FROM records
-                    WHERE user_id='".$_SESSION['ses_userid']."'
-                    AND record_deleted='1'";
-    mysql_query($sql_delete_deleted_record);
+                            SET subject_vacancy=subject_vacancy+1
+                            WHERE subjects.subject_id=records.subject_id
+                            AND records.user_id='".$_SESSION['ses_userid']."'
+                            AND record_deleted='1'";
+    mysqli_query($conn, $sql_increase_vacancy);  
+    $sql_delete_deleted_record="DELETE FROM records
+                                WHERE user_id='".$_SESSION['ses_userid']."'
+                                AND record_deleted='1'";
+    mysqli_query($conn, $sql_delete_deleted_record);
 /* End(1.3)
  */
     header("location:view.php");
   } else {
-    $_SESSION['ses_announce']=1;
+    $_SESSION['ses_announce'] = 1;
     header("location:timetableadvance.php#error");
   }
 }
@@ -209,7 +211,7 @@ if ($username!= NULL) {
       <div class="ttb_top_2_right">
 
     <!--(4) Get user credit(s) number-->
-      <?$method->get_credits();?>
+      <?php $method->get_credits(); ?>
       </div>
     </div>
 
@@ -255,7 +257,7 @@ if ($username!= NULL) {
     <th class="ttb_table" scope='col'>土</th> 
     <?php endif ?>
     </tr>
-<?
+<?php
 /**
 * End (6.1)
 */
@@ -280,8 +282,8 @@ if ($username!= NULL) {
                         AND subject_period='".$i."'
                         AND user_id='".$_SESSION['ses_userid']."'
                         AND record_deleted='0'";
-          $query_generate_edit_button=mysql_query($sql_generate_edit_button);
-          if(mysql_num_rows($query_generate_edit_button)>0) {
+          $query_generate_edit_button=mysqli_query($conn, $sql_generate_edit_button);
+          if(mysqli_num_rows($query_generate_edit_button)>0) {
             echo "<br />";
             echo "<br />";
             echo "<input  type='image' name='".$i.$j.$k."' value='Edit' src='image/ico_sumi.gif'>";
@@ -299,20 +301,20 @@ if ($username!= NULL) {
                       AND records.subject_day='".$day[$k]."'
                       AND records.subject_id=subjects.subject_id
                       AND record_deleted= '0'";
-          $query_generate_subject=mysql_query($sql_generate_subject);
-          $counter=0;
-          while ($row_generate_subject=mysql_fetch_assoc($query_generate_subject)) {
-          if($_COOKIE['language']=='en') {
+          $query_generate_subject = mysqli_query($conn, $sql_generate_subject);
+          $counter = 0;
+          while ($row_generate_subject = mysqli_fetch_assoc($query_generate_subject)) {
+          if($_COOKIE['language'] == 'en') {
             $subject_name = $row_generate_subject['subject_name'];
-          } else if($_COOKIE['language']=='ja') {
+          } else if($_COOKIE['language'] == 'ja') {
             $subject_name = $row_generate_subject['subject_name_jap'];
           }
-          if ($counter==0) {
+          if ($counter == 0) {
             echo "<font color='#0000FF' size='2'>".$row_generate_subject['subject_code']."</font><br />";
             if (str_word_count($subject_name)>5) {
               echo "<font color='#0000FF'><b>";
               $new_string=str_word_count($subject_name,1);
-              foreach($new_string as $key=>$value) {
+              foreach($new_string as $key => $value) {
                 if ($key==3) {
                   echo $value."<br/>";
                 } else {
