@@ -495,7 +495,7 @@ while($row = mysqli_fetch_assoc($query)) {
     $text.="<td>".$value."</td>";
   }
   $syllabus_code=$row['subject_code'];
-  $text.="<td><a href='https://portal2.apu.ac.jp/campusp/slbssbdr.do?value(risyunen)=2017&value(semekikn)=1&value(kougicd)=".$syllabus_code."' target='_tab'>Syllabus</a></td>";
+  $text.="<td><a href='https://portal2.apu.ac.jp/campusp/slbssbdr.do?value(risyunen)=2018&value(semekikn)=1&value(kougicd)=".$syllabus_code."' target='_tab'>Syllabus</a></td>";
   $array[]=$text;
   $text='';
   $testing[]=$row['subject_code'];
