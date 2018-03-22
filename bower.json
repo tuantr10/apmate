@@ -1,0 +1,20 @@
+{
+  "name": "html",
+  "homepage": "https://github.com/tuantr10/apmate",
+  "authors": [
+    "Tuan Dung TRAN <mcafee92@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "js-cookie": "^2.2.0"
+  }
+}
